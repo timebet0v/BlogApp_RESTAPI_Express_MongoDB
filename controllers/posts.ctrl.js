@@ -1,4 +1,6 @@
 const PostModel = require('../models/post.model');
+const AppError = require('../utils/appError');
+const { catchAsync } = require('./error.ctrl');
 
 /*  CRUD Operations
   1. C => Create | Creating new data
@@ -8,89 +10,83 @@ const PostModel = require('../models/post.model');
 */
 
 // GET - Fetching all posts
-const getAll = async (req, res) => {
+const getAllPosts = catchAsync(async (req, res, next) => {
   const { limit } = req.query;
-  try {
-    let posts = await PostModel.find().limit(Number(limit) || 10);
-    return res.status(200).json(posts);
-  } catch (err) {
-    console.log(err);
-    res.status(404).json({ message: 'Not found any posts!' });
+
+  let posts = await PostModel.find()
+    .limit(Number(limit) || 5)
+    .select('title');
+  if (posts.length === 0) {
+    return res.status(200).json({ result: 'There no posts!' });
   }
-};
+  return res.status(200).json({ results: posts.length, data: posts });
+});
 
 // GET - Getting one post with given ID
-const getById = async (req, res) => {
+const getPostById = catchAsync(async (req, res, next) => {
   const { id } = req.params;
-  try {
-    const post = await PostModel.findById(id);
-    res.status(200).json({ success: true, data: post });
-  } catch (err) {
-    console.log(err);
-    res
-      .status(404)
-      .json({ message: " We're sorry! Not found any post with given id." });
+  const post = await PostModel.findById(id);
+  if (!post) {
+    return next(new AppError('Not found any post with given id!', 404));
   }
-};
+  res.status(200).json({ success: true, data: post });
+});
 
 // POST - Creating a brand new post and saving
-const createPost = async (req, res) => {
-  let newPost = new PostModel({
+const createPost = catchAsync(async (req, res) => {
+  const postData = {
     title: req.body.title,
     body: req.body.body,
-  });
+  };
 
-  try {
-    await newPost.save();
-    res.status(201).json({ success: true, data: newPost });
-  } catch (err) {
-    console.log(err);
-    res.status(403).json({ message: "Couldn't save the post!" });
-  }
-};
+  let newPost = new PostModel(postData);
+
+  await newPost.save();
+  res.status(201).json({ success: true, data: newPost });
+});
 
 // PUT - updating the data
-const updatePost = async (req, res) => {
+const updatePost = catchAsync(async (req, res, next) => {
   const { id } = req.params;
-  const { title, body } = req.body;
-  try {
-    let newPost = { title, body };
-    let post = await PostModel.findByIdAndUpdate(id, newPost);
-    res.status(200).json({
-      message: 'Post has been updated successfully!',
-      dataUpdated: { from: post, to: newPost },
-    });
-  } catch (err) {
-    console.log(err);
-    res
-      .status(404)
-      .json({ message: "We're sorry! But, something went wrong." });
+  const postData = {
+    title: req.body.title,
+    body: req.body.body,
+    updatedAt: Date.now(),
+  };
+
+  const post = await PostModel.findByIdAndUpdate(id, postData);
+
+  if (!post) {
+    return next(new AppError('Not found any post with given id!', 404));
   }
-};
+
+  res.status(200).json({
+    message: 'Post has been updated successfully!',
+    updatedPost: post,
+  });
+});
 
 // DELETE - removing the data
-const deletePost = async (req, res) => {
+const deletePost = catchAsync(async (req, res, next) => {
   const { id } = req.params;
-  try {
-    const post = await PostModel.findByIdAndDelete(id);
-    res.status(200).json({
-      success: true,
-      message: 'Post with given id has been removed successfully!',
-      removedData: post,
-    });
-  } catch (err) {
-    console.log(err);
-    res.status(404).json({
-      success: false,
-      message: "We're sorry! But something went wrong!",
-    });
+
+  const post = await PostModel.findByIdAndDelete(id);
+
+  if (!post) {
+    return next(new AppError('Not found any post with given id!', 404));
   }
-};
+
+  res.status(200).json({
+    success: true,
+    message: `Post with given id: ${id} has been removed successfully!`,
+    removedData: post,
+  });
+});
 
 // Exporting in order to use in the routes...
 module.exports = {
-  getAll,
-  getById,
+  getAllPosts,
+  getPostById,
   createPost,
   updatePost,
   deletePost,
