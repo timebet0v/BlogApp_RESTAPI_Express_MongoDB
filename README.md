@@ -11,9 +11,13 @@ There are no Client or Server-Side Rendering pages, any type of static files. Re
 
 ## P.S.
 > Only authenticated users can CREATE, UPDATE, DELETE posts
+> 
 > Only authenticated users can visit route `/profile/*`
+> 
 > Only authenticated users can see the list of all users and get one by id
+> 
 > Only authenticated users and who has the role of `admin` can perform actions such as: update and delete users by id
+> 
 > For resetting password functionality and sending mails I used service [mailtrap](https://mailtrap.io/)
 
 ## Install
