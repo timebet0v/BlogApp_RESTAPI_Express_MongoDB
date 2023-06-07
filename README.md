@@ -1,4 +1,4 @@
-# BlogApp RESTful API Documentation
+# BlogApp RESTFull API Documentation
 
 ## STACK
 1. MongoDB
@@ -11,13 +11,9 @@ There are no Client or Server-Side Rendering pages, any type of static files. Re
 
 ## P.S.
 > Only authenticated users can CREATE, UPDATE, DELETE posts
-> 
 > Only authenticated users can visit route `/profile/*`
-> 
 > Only authenticated users can see the list of all users and get one by id
-> 
 > Only authenticated users and who has the role of `admin` can perform actions such as: update and delete users by id
-> 
 > For resetting password functionality and sending mails I used service [mailtrap](https://mailtrap.io/)
 
 ## Install
@@ -29,7 +25,7 @@ npm i
 
 2. Create ".env" file in the root directory
 3. Put two following variables inside the ".env" file and give them values:
-  - `NODE_ENV=development`
+  - `NODE_ENV=production`
   - `SERVER_PORT=`
   - `DB_URL=`
   - `JWT_SECRET_KEY=`
@@ -168,6 +164,7 @@ EXAMPLE:
 }
 ```
 The response body will contain the access token. The access token is valid for the number of days which given in the `.env` file in the field: `JWT_EXPIRES_IN`.
+
 ---
 
 # Users
@@ -175,14 +172,14 @@ The response body will contain the access token. The access token is valid for t
 > Requires authentication
 1. GET `/api/users`
 
-Authorization: Bearer <YOUR TOKEN>
+```Authorization: Bearer <YOUR TOKEN>```
 To get a list of all users that registered in the service.
 
 ### Get one user by ID
 > Requires authentication
 2. GET `/api/users/:id`
 
-Authorization: Bearer <YOUR TOKEN>
+```Authorization: Bearer <YOUR TOKEN>```
 Retrieve detailed information about a user.
 
 ### Update user by ID
@@ -219,13 +216,13 @@ Authorization: Bearer <YOUR TOKEN>
 > Requires authentication
 1. GET `/api/profile`
 
-Authorization: Bearer <YOUR TOKEN>
+```Authorization: Bearer <YOUR TOKEN>```
 Retrieve detailed information about the logged in user.
 ### To update profile (current logged in user) info
 > Requires authentication
 2. PUT `/api/profile`
 
-Authorization: Bearer <YOUR TOKEN>
+```Authorization: Bearer <YOUR TOKEN>```
 You can change only username and email fields.
 
 Example
